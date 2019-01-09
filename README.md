@@ -3,16 +3,16 @@ CLASS: Continuum and Line Analysis Single-dish Softwares
 
 GreG: Grenoble Graphic
 
-## Interacting with the shell
-    $ SHELL_Command [-Opts] [Args]
-
-## Document ##
+## 1. Document ##
 <code>help</code> Show the list of availavle languages and commands.  
 <code>help Lang\\</code> Show the list of availavle commands.  
 <code>help [Lang\\]Command [Subtopic]</code> Show the help for this command.  
 <code>help [run] TaskName</code> Show the help for this task.  
 <code>help go ProcName</code> / <code>input ProcName</code> Show the help for this procedure.  
 <code>input ?</code> Show the list of availavle procedures.  
+
+### Interacting with the shell
+    $ SHELL_Command [-Opts] [Args]
 
 ### SIC\ Command Language Summary ###
 Basic programming language of CLASS and GreG.
@@ -55,7 +55,42 @@ Basic programming language of CLASS and GreG.
 * type \[XX]     : List file XX or the stack.
 * **@ XX \[P1 ...]** : Read commands from macro XX and executes them.
 
-### LAS\ Command Language Summary ###
+### VECTOR\ Language Summary ###
+    help vector\
+* **fits**        : Convert between FITS files and Gildas images
+* header      : List the header of a Gildas image
+* **run TaskName**    : Activate a GILDAS task  
+* spy \[Task]  : Look at current status of detached Tasks
+* submit Task : Submit a GILDAS Task in batch queue GILDAS_BATCH
+* **transpose**   : Transpose data cubes
+
+### USER\ (Procedures) ###
+    help user\
+* **input** = "@ p_input.greg"  
+**input ProcName/?** : Show the help for this procedure/the list of availavle procedures.
+* **go** = "@ p_go.greg"  
+**go ProcName** : Execute a procedure.
+* uvt_convert = "@ uvdat2uvfil.greg"
+
+Pocedures for multichannel viewing:
+
+ - **view**      : interactive viewing of spectra data cube
+ - **3view**     : interactive viewing of position/velocity diagrams
+ - **bit**       : plot a   color map of all or selected channels
+ - map       : plot a contour map of all or selected channels
+ - xv        : plot x-axis/velocity diagrams
+ - vy        : plot velocity/y-axis diagrams
+ - spectre   : plot spectra from a data cube
+ - velocity  : plot mean, velocity and width maps
+ - over      : Overlay bitmaps and contours of several images
+ - *color, lut* : Fiddle Color Table
+ 
+ Pocedures for analysis:
+ 
+ - noise     : Compute noise histogram of data cubes
+ - **moment**    : Compute mean, velocity and width maps
+ 
+ ### LAS\ Command Language Summary ###
 The first-priority part called in CLASS.
 
     help las\
@@ -92,41 +127,6 @@ The first-priority part called in CLASS.
 * title             : Write a header above the plotted frame.
 * **update**            : Update R in the output file.
 * **write \[Obs]**       : Write R in the output file.
-
-### VECTOR\ Language Summary ###
-    help vector\
-* **fits**        : Convert between FITS files and Gildas images
-* header      : List the header of a Gildas image
-* **run TaskName**    : Activate a GILDAS task  
-* spy \[Task]  : Look at current status of detached Tasks
-* submit Task : Submit a GILDAS Task in batch queue GILDAS_BATCH
-* **transpose**   : Transpose data cubes
-
-### USER\ (Procedures)###
-    help user\
-* **input** = "@ p_input.greg"  
-**input ProcName/?** : Show the help for this procedure/the list of availavle procedures.
-* **go** = "@ p_go.greg"  
-**go ProcName** : Execute a procedure.
-* uvt_convert = "@ uvdat2uvfil.greg"
-
-Pocedures for multichannel viewing:
-
- - **view**      : interactive viewing of spectra data cube
- - **3view**     : interactive viewing of position/velocity diagrams
- - **bit**       : plot a   color map of all or selected channels
- - map       : plot a contour map of all or selected channels
- - xv        : plot x-axis/velocity diagrams
- - vy        : plot velocity/y-axis diagrams
- - spectre   : plot spectra from a data cube
- - velocity  : plot mean, velocity and width maps
- - over      : Overlay bitmaps and contours of several images
- - *color, lut* : Fiddle Color Table
- 
- Pocedures for analysis:
- 
- - noise     : Compute noise histogram of data cubes
- - **moment**    : Compute mean, velocity and width maps
 
 ### ANALYSE\ Command Language Summary ###
     help analyse\
@@ -237,6 +237,35 @@ The first-priority part called in GreG.
 * kill             : Kills pixels.
 * spectrum         : Extracts or compute a mean spectrum from an image.
 
-## Files
-### File Format
-Default extension of GILDAS Data Format is \*.gdf.
+## 2. Files
+### Data Format
+#### GILDAS Format
+Mainly work with VECTOR, USER commands.
+A cube data.
+Default extension is \*.gdf.  
+
+Two types:
+* Table : 2-dimension array + header about its dimensions.  
+* Image : 4-dimension array + header about WCS, tele, etc.  
+LMV spectra cubes are Images. L: RA(1), M: Dec(2), V: Velocity(3).  
+Change the sequence of axes of LMV cubes.  
+
+        VECTOR\transpose InputFileName OutputFileName OutputOrder
+
+#### CLASS Format
+Mainly work with LAS, ANALYSE, FIT commands.
+A set of spectra.
+Default extension is \*.30m.
+
+R and T Memories:  
+CLASS keeps 2 observations in memory, in two different buffers, called <code>R</code> and <code>T</code>. The <code>R</code> memory is the only one that may be accessed directly; the <code>T</code> memory is only used for operations on spectra.  
+<code>LAS\swap</code> exchanges both memories.
+
+#### Eg.
+Make a CLASS format data, <code>abc.30m</code>, become a Table.  
+
+        ANALYSE\table abc.tab [new] [/range Xmin Xmax Unit] [/nocheck [source|position|line]]
+Make a Table become an Image.
+
+        MAP\xy_map TableName [/nogrid] [/type lmv]
+
