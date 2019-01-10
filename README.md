@@ -150,6 +150,9 @@ The first-priority part called in CLASS.
 * stamp             : Display all spectra in index on one plot
 * strip File        : Create an image for Position-Velocity plots
 * **table**             : Build a GILDAS table from the current index
+
+### MAP\ ###
+        help map\
 * **xy_map**             : Build an LMV spectra cube from an XY table
 
 ### FIT\ Language Summary ###
@@ -237,22 +240,41 @@ The first-priority part called in GreG.
 * kill             : Kills pixels.
 * spectrum         : Extracts or compute a mean spectrum from an image.
 
-## 2. Files
-### Data Format
-#### GILDAS Format
+## 2. Flow
+* IF section
+
+        if [...]
+        endif
+
+* FOR loop
+
+        for i n1 n2 n3 to n4 by n5 n6 to n7
+            [...]
+        next
+The indice, i,  will go through n1, n2, n3, n3+*n5*, n3+*2\*n5*, ..., n4,  
+n6, n6+*1*, n6+*2*, ..., n7. n_j's can be non-integers.
+
+## 3. Data Format
+### GILDAS Format
 Mainly work with VECTOR, USER commands.
 A cube data.
 Default extension is \*.gdf.  
 
 Two types:
 * Table : 2-dimension array + header about its dimensions.  
+Make a CLASS format data, <code>DataName.30m</code>, become a Table (must be <code>DataName.tab</code>).  
+
+        ANALYSE\table DataName.tab [new] [/range Xmin Xmax Unit] [/nocheck [source|position|line]]
 * Image : 4-dimension array + header about WCS, tele, etc.  
+Make a Table, <code>TableName.tab</code>, become an Image (must be <code>TableName.lmv</code>).
+
+        MAP\xy_map TableName.tab [/nogrid] [/type lmv]
 LMV spectra cubes are Images. L: RA(1), M: Dec(2), V: Velocity(3).  
 Change the sequence of axes of LMV cubes.  
 
         VECTOR\transpose InputFileName OutputFileName OutputOrder
 
-#### CLASS Format
+### CLASS Format
 Mainly work with LAS, ANALYSE, FIT commands.
 A set of spectra.
 Default extension is \*.30m.
@@ -261,11 +283,94 @@ R and T Memories:
 CLASS keeps 2 observations in memory, in two different buffers, called <code>R</code> and <code>T</code>. The <code>R</code> memory is the only one that may be accessed directly; the <code>T</code> memory is only used for operations on spectra.  
 <code>LAS\swap</code> exchanges both memories.
 
-#### Eg.
-Make a CLASS format data, <code>abc.30m</code>, become a Table.  
+<code>LAS\file in DataName.30m</code> Open an existing CLASS data  
 
-        ANALYSE\table abc.tab [new] [/range Xmin Xmax Unit] [/nocheck [source|position|line]]
-Make a Table become an Image.
+<code>LAS\file out DataName.30m</code> Open an existing CLASS data as output (to be written/updated)  
 
-        MAP\xy_map TableName [/nogrid] [/type lmv]
+<code>LAS\file out DataName.30m single|multiple [/overwrite]</code>  
+Open a new CLASS data as output.  
+The single mode only allow to have one spectrum for an ObservationNumber, and vice versa.
 
+<code>LAS\file update DataName.30m</code> Open an existing file to update. <code>write</code> is not allowed.
+
+<code>LAS\file both DataName.30m</code> Open an existing MULTIPLE file to read and write.
+
+<code>LAS\find [/line name] [/offset o1 o2] [/source name] ... </code> Search from the input data and build an Index
+
+<code>LAS\show file</code> Show the file type.
+
+<code>LAS\list [in|out]</code> List the input Index or output Index.
+
+<code>LAS\get [N [ver]|first|last|next]</code> Copy <code>R</code> into <code>T</code>, and load the ObservationNumber N in <code>R</code>.
+
+### Examples
+Open a data. Display a header of a spectrum or average all found spectra; then plot.
+
+        file in DataName.30m
+        find; list
+        get first; header [average /nocheck position] ! "get/average" puts an Obs into the R buffer.
+        plot
+        
+Upate (Overwrite) the LAST version of the observation in the R buffer in the output data.
+
+        file update DataName.30m
+        find /line N2H+* /offset * 0
+        for i 1 to found
+            get next
+            modify source L0000 ! Modify the R buffer
+            modify linename N2D+(1-0)
+            modify position 00:00:00.00 00:00:00.0 ! RA & Dec
+            modify velocity 7.5 ! in km/s
+            update ! Overwrite/update the R buffer to the last Obs
+        next
+        
+Writes the observation in the R buffer onto the output file. A new ObservationNumber is created.
+
+        file both DataName.30m ! A MULTIPLE data
+        find /line N2H+* /offset * 0
+        for i 1 to found
+            get next
+            modify [...]
+            write ! Write the R buffer into a new Obs
+        next
+
+Write a new output data with the modification.
+        
+        file out DataName_new.30m single
+        file in DataName.30m
+        find
+        for i 1 to found
+            get next
+            modify [..]
+            write
+        next
+        
+Copy a data.
+
+        file out DataName_new.30m single
+        file in DataName.30m
+        find; copy
+
+Write spectra from a CLASS data to ASCII files.
+
+        file in DataName.30m
+        for d -12 to 24 by 12
+            for a 0 to 36 by 12
+                find /off a d
+                if found.gt.0
+                    get next
+                    set unit v f
+                    sic output Dir/n2hp10_'a'_'d'.dat ! Open the file.
+                    for i 1 to channels
+                        ! Redirect SIC\say into the file.
+                        say 'rx[i]' 'ry[i]' ! rx & ry mean the x/y axis of the R buffer
+                    next
+                    sic output ! Without arg, close the file;
+                endif
+            next
+        next
+                    
+
+
+## References
+<a href='https://www.iram.fr/IRAMFR/GILDAS/gildasli3.html#x6-3000'>GILDAS Documentation</a>
