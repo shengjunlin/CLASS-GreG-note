@@ -1,4 +1,4 @@
-# CLASS/GREG-note
+# CLASS/GreG-note
 CLASS: Continuum and Line Analysis Single-dish Softwares
 
 GreG: Grenoble Graphic
@@ -20,8 +20,14 @@ GreG: Grenoble Graphic
 <code>help go ProcName</code> / <code>input ProcName</code> Show the help for this procedure.  
 <code>input ?</code> Show the list of availavle procedures.  
 
-### Interacting with the shell
-    $ SHELL_Command [-Opts] [Args]
+### Spectical Operator ###
+<code>$ SHELL_Command [-Opts] [Args]</code> Interacting with the shell.  
+<code> ! </code> Start a comment.  
+<code> ; </code> Delimiter operator (command separator).  
+
+### Command History ###
+Search commands backwards : Hit up-arrow key.  
+Partially search commands : Type the beginning of a previous command, and then hit up-arrow
 
 ### SIC\ Command Language Summary ###
 Basic programming language of CLASS and GreG.
@@ -249,7 +255,7 @@ The first-priority part called in GreG.
 * kill             : Kills pixels.
 * spectrum         : Extracts or compute a mean spectrum from an image.
 
-## 2. <a name="flow"></a>Flow Control
+## 2. <a name="flow"></a>Flow Control ##
 * IF block
 
         if [cond 1]
@@ -268,8 +274,8 @@ The first-priority part called in GreG.
 The index, i,  will go through n1, n2, n3, n3+*n5*, n3+*2\*n5*, ..., n4,  
 n6, n6+*1*, n6+*2*, ..., n7. n_j's can be non-integers.
 
-## 3. <a name="data"></a>Data Format
-### GILDAS Format
+## 3. <a name="data"></a>Data Format ##
+### GILDAS Format ###
 Mainly work with VECTOR, USER commands.
 A cube data.
 Default extension is \*.gdf.  
@@ -288,7 +294,7 @@ Change the sequence of axes of LMV cubes.
 
         VECTOR\transpose InputFileName OutputFileName OutputOrder
 
-### CLASS Format
+### CLASS Format ###
 Mainly work with LAS, ANALYSE, FIT commands.
 A set of spectra.
 Default extension is \*.30m.
@@ -317,7 +323,7 @@ The single mode only allow to have one spectrum for an ObservationNumber, and vi
 
 <code>LAS\get [N [ver]|first|last|next]</code> Copy <code>R</code> into <code>T</code>, and load the ObservationNumber N in <code>R</code>.
 
-### Examples
+### Examples ###
 Open a data. Display a header of a spectrum or average all found spectra; then plot.
 
         file in DataName.30m
@@ -328,7 +334,7 @@ Open a data. Display a header of a spectrum or average all found spectra; then p
 Upate (Overwrite) the LAST version of the observation in the R buffer in the output data.
 
         file update DataName.30m
-        find /line N2H+* /offset * 0
+        find /line N2H+* /offset * 0 ! "*" represents any characters
         for i 1 to found
             get next
             modify source L0000 ! Modify the R buffer
@@ -379,7 +385,7 @@ Write spectra from a CLASS data to ASCII files.
                         ! Redirect SIC\say into the file.
                         say 'rx[i]' 'ry[i]' ! rx & ry mean the x/y axis of the R buffer
                     next
-                    sic output ! Without arg, close the file;
+                    sic output ! Without arg, close the file.
                 endif
             next
         next
