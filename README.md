@@ -5,8 +5,12 @@ GreG: Grenoble Graphic
 
 ## Content ##
 1. [Document](#doc)
-2. [Flow](#flow)
+2. [Flow Control](#flow)
 3. [Data Format](#data)
+4. Spectrum Plot 
+5. Fitting 
+6. Map 
+7. References  
 
 ## <a name="doc"></a>1. Document ##
 <code>help</code> Show the list of availavle languages and commands.  
@@ -245,18 +249,23 @@ The first-priority part called in GreG.
 * kill             : Kills pixels.
 * spectrum         : Extracts or compute a mean spectrum from an image.
 
-## 2. <a name="flow"></a>Flow
-* IF section
+## 2. <a name="flow"></a>Flow Control
+* IF block
 
-        if [...]
+        if [cond 1]
+            [case 1]
+        else if [cond 2]
+            [case 2]
+        else
+            [case 3]
         endif
 
-* FOR loop
+* FOR block
 
         for i n1 n2 n3 to n4 by n5 n6 to n7
             [...]
         next
-The indice, i,  will go through n1, n2, n3, n3+*n5*, n3+*2\*n5*, ..., n4,  
+The index, i,  will go through n1, n2, n3, n3+*n5*, n3+*2\*n5*, ..., n4,  
 n6, n6+*1*, n6+*2*, ..., n7. n_j's can be non-integers.
 
 ## 3. <a name="data"></a>Data Format
