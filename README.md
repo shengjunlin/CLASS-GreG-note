@@ -7,7 +7,7 @@ GreG: Grenoble Graphic
 1. [Document](#doc)
 2. [Flow Control](#flow)
 3. [Data Format](#data)
-4. Spectrum Plot 
+4. [Spectrum Plot](#plot) 
 5. Fitting 
 6. Map 
 7. References  
@@ -391,6 +391,14 @@ Write spectra from a CLASS data to ASCII files.
         next
                     
 
+## 4. <a name="plot"></a>Spectrum Plot ##
+
+<code>LAS\plot</code> is equivalent to
+
+        clear
+        box
+        spectrum
+        title
 
 ## References
 <a href='https://www.iram.fr/IRAMFR/GILDAS/gildasli3.html#x6-3000'>GILDAS Documentation</a>
