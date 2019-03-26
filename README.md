@@ -24,6 +24,7 @@ GreG: Grenoble Graphic
 <code>$ SHELL_Command [-Opts] [Args]</code> Interacting with the shell.  
 <code> ! </code> Start a comment.  
 <code> ; </code> Delimiter operator (command separator).  
+<code>Ctrl + u</code> Remove the current input characters.  
 
 ### Command History ###
 Search commands backwards : Hit up-arrow key.  
@@ -293,6 +294,11 @@ LMV spectra cubes are Images. L: RA(1), M: Dec(2), V: Velocity(3).
 Change the sequence of axes of LMV cubes.  
 
         VECTOR\transpose InputFileName OutputFileName OutputOrder
+The outputs of task <code>go moment</code>, \*.mean (0th mom), \*.velo (1st mom). \*width (2nd mom), belong to 2d Images.  
+Convert between FITS files and Gildas images or tables.  
+
+        VECTOR\fits OutputFile.fits from InputFile.gdf
+        VECTOR\fits InputFile.gdf to OutputFile.fits
 
 ### CLASS Format ###
 Mainly work with LAS, ANALYSE, FIT commands.
@@ -401,4 +407,4 @@ Write spectra from a CLASS data to ASCII files.
         title
 
 ## References
-<a href='https://www.iram.fr/IRAMFR/GILDAS/gildasli3.html#x6-3000'>GILDAS Documentation</a>
+<a href='https://www.iram.fr/IRAMFR/GILDAS/gildasli3.html#x6-3000' target="_blank">GILDAS Documentation</a>
