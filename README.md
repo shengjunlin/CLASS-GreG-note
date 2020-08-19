@@ -5,12 +5,13 @@ GreG: Grenoble Graphic
 
 ## Content ##
 1. [Document](#doc)
-2. [Flow Control](#flow)
-3. [Data Format](#data)
-4. [Spectrum Plot](#plot) 
-5. Fitting 
-6. Map 
-7. References  
+2. [Variable] (#variable)
+3. [Flow Control](#flow)
+4. [Data Format](#data)
+5. [Spectrum Plot](#plot) 
+6. [Fitting](#fitting)
+7. [Map](#map)
+8. [References](#ref)
 
 ## <a name="doc"></a>1. Document ##
 <code>help</code> Show the list of availavle languages and commands.  
@@ -256,7 +257,22 @@ The first-priority part called in GreG.
 * kill             : Kills pixels.
 * spectrum         : Extracts or compute a mean spectrum from an image.
 
-## 2. <a name="flow"></a>Flow Control ##
+## 2. <a name="variable"></a>Variable ##
+
+Types are <code>REAL</code>, <code>INTEGER</code>, </code>DOUBLE</code>, <code>LOGICAL</code>, and <code>CHARACTER</code>.
+
+Define a integer variable and assign a value
+
+        define integer output_data
+        let output_data 0
+
+## 3. <a name="flow"></a>Flow Control ##
+
+* Logical operator: <code>.eq.</code>, <code>.gt.</code>, <code>.le.</code>, etc.
+
+        if output_data.eq.1
+            [...]
+
 * IF block
 
         if [cond 1]
@@ -275,7 +291,7 @@ The first-priority part called in GreG.
 The index, i,  will go through n1, n2, n3, n3+*n5*, n3+*2\*n5*, ..., n4,  
 n6, n6+*1*, n6+*2*, ..., n7. n_j's can be non-integers.
 
-## 3. <a name="data"></a>Data Format ##
+## 4. <a name="data"></a>Data Format ##
 ### GILDAS Format ###
 Mainly work with VECTOR, USER commands.
 A cube data.
@@ -330,12 +346,12 @@ The single mode only allow to have one spectrum for an ObservationNumber, and vi
 <code>LAS\get [N [ver]|first|last|next]</code> Copy <code>R</code> into <code>T</code>, and load the ObservationNumber N in <code>R</code>.
 
 ### Examples ###
-Open a data. Display a header of a spectrum or average all found spectra; then plot.
+Open a data. Display the header of a spectrum.
 
         file in DataName.30m
         find; list
-        get first; header [average /nocheck position] ! "get/average" puts an Obs into the R buffer.
-        plot
+        get first ! "get" puts an Obs into the R buffer.
+        header
         
 Upate (Overwrite) the LAST version of the observation in the R buffer in the output data.
 
@@ -397,7 +413,7 @@ Write spectra from a CLASS data to ASCII files.
         next
                     
 
-## 4. <a name="plot"></a>Spectrum Plot ##
+## 5. <a name="plot"></a>Spectrum Plot ##
 
 <code>LAS\plot</code> is equivalent to
 
@@ -406,5 +422,125 @@ Write spectra from a CLASS data to ASCII files.
         spectrum
         title
 
-## References
+### Examples ###
+Average all found spectra; then plot.
+
+        file in DataName.30m
+        find; list
+        average /nocheck position ! "average" puts an Obs into the R buffer.
+        plot
+
+Draw a vertical line and add a label on the plot and save it as a image file.
+
+        plot
+        greg\pen /colour 1 ! red
+        greg\draw r 7.82 0 /user  ! r for relocate, a staring point
+        greg\draw l 7.82 1 /user  ! l for line, the end point for a line
+        greg\draw text 7.71 0.3 "v\d0(DCO\u+ 1-0)=7.82" 5 90 /user
+        greg\pen /colour 0 ! black
+        hardcopy dcop_10_vlsr_off_+00_+00.png /device png /overwrite
+
+
+## 6. <a name="fitting"></a>Fitting ##
+
+Before fitting, one should establish a baseline by <code>LAS\base</code>.
+
+        file in provisional/prov_n2hp_10.30m
+        file out n2hp_10.30m single
+        set unit v f
+        set mode x -5 20
+        set window 6.9 8.6
+        for d -60 to 60 by 10  ! Dec
+            for a -60 to 60 by 10  ! RA
+                find /off a d
+                if found.gt.0
+                    get next
+                    plot
+                    draw window
+                    base 8 /plot  ! Fit with an 8th-order polynomial. Then put
+                                  ! the extracted spectrum into the R buffer and store
+                                  ! the previous spectrum in the T buffer.
+                                  ! /plot will display the new spectra in the R buffer.
+                    pause  ! Type 'c' to continue, or 'quit' to cancel all loop
+                    write  ! Write the baseline-extracted spectra into file
+                endif
+            next
+        next
+
+Use <code>LAS\swap</code> to undo the baseline extraction.
+
+        plot; draw window
+        base 5 /plot
+        swap  ! Exchange buffer T and R. The old spectra is recovered in the R buffer.
+        plot  ! Plot again. You will find the display is the old spectra.
+        base 4 /plot ! Try another order.
+
+<code>FIT\method</code> can select a line profile for fitting.
+
+        fit\method gauss  ! Use a gaussian profile
+        fit\method hfs [filename]  ! Use a file for hfs fitting
+
+The filename storing hfs profile should be (the example is N2H+ 1-0)
+
+        7             ! 1st line: Number of components
+        -8.0064 0.111 ! 1st column: Velocity shift, for each component,
+        -0.6109 0.111 ! (in km/s) with respect to the reference
+        0       0.259 ! component.
+        0.956   0.185 ! 2nd column: The relative strength of each component.
+        5.5452  0.111 ! Here, they are normalized.
+        5.9842  0.185
+        6.936   0.037
+
+<code>FIT\minimize</code> will perform the fitting.
+
+Once <code>minimize</code> has been executed, one can execute <code>FIT\iterate</code>
+to perform the fitting again but by starting from the previous result.
+
+<code>FIT\visualize</code> will display the fitted spectra profile.
+
+        file in n2hp_10.30m
+        find /offset 0 0; list; get first
+        set unit v f; set mode x -5 20; set mode y -0.3 1.3
+        set window 6. 9.
+        plot; base 0 /plot
+        method hfs n2hp_10.hfs
+        minimize
+        plot
+        visualize /pen 3  ! 3 is green
+
+## 7. <a name="map"></a>Map ##
+
+Use <code>ANALYSE\map</code> to output a spectra grid
+
+        analyse\map where ! Only displays the spectra locations with crosses
+        analyse\map match /grid ! Display spectra grid
+        analyse\map match /cell Size_X [Size_Y] ! Customize the cell size
+
+        file in dcop_10.gbt
+        find
+        set unit v f
+        ! To selct the range to output
+        set mode x 6 10
+        set mode y -0.2 1.3
+        clear
+        map match /grid /base 1  ! 1 means red
+        pause "type greg\draw and type t to annotate"
+        ! draw  ! Type "t" to annotate text
+        ! >Text : DCO\u+ (1-0), x:6~10km s\u-\u1, y=-0.2-1.3K
+        ! Type "e" to leave when the cursor is on the greg window
+
+        pause "type greg\draw and type b on the plot to find the dimension of a box, x1 x2 y1 y2"
+        greg\set box 20.71 21.76 7.329 8.379  ! x1 x2 y1 y2
+        pen /colour 0
+        set expand 0.5 ! font size
+        set unit v v
+        box
+
+        hardcopy dcop_10_spec /device eps /overwrite  ! EPS file
+        $ epstopdf dcop_10_spec.eps  ! PDF file
+        $ convert -flatten -density 300 dcop_10_spec.pdf dcop_10_spec.png  ! PNG file
+
+
+
+## <a name="ref"></a>References ##
 <a href='https://www.iram.fr/IRAMFR/GILDAS/gildasli3.html#x6-3000' target="_blank">GILDAS Documentation</a>
