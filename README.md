@@ -10,7 +10,7 @@ GreG: Grenoble Graphic
 4. [Data Format](#data)
 5. [Spectrum Plot](#plot) 
 6. [Fitting](#fitting)
-7. [Map](#map)
+7. [Map](#grid_map)
 8. [References](#ref)
 
 ## <a name="doc"></a>1. Document ##
@@ -508,7 +508,7 @@ to perform the fitting again but by starting from the previous result.
         plot
         visualize /pen 3  ! 3 is green
 
-## 7. <a name="map"></a>Map ##
+## 7. <a name="grid_map"></a>Map ##
 
 Use <code>ANALYSE\map</code> to output a spectra grid
 
@@ -516,7 +516,7 @@ Use <code>ANALYSE\map</code> to output a spectra grid
         analyse\map match /grid ! Display spectra grid
         analyse\map match /cell Size_X [Size_Y] ! Customize the cell size
 
-## Example
+### Example
         file in dcop_10.gbt
         find
         set unit v f
