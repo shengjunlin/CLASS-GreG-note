@@ -5,7 +5,7 @@ GreG: Grenoble Graphic
 
 ## Content ##
 1. [Document](#doc)
-2. [Variable] (#variable)
+2. [Variable](#variable)
 3. [Flow Control](#flow)
 4. [Data Format](#data)
 5. [Spectrum Plot](#plot) 
@@ -259,7 +259,7 @@ The first-priority part called in GreG.
 
 ## 2. <a name="variable"></a>Variable ##
 
-Types are <code>REAL</code>, <code>INTEGER</code>, </code>DOUBLE</code>, <code>LOGICAL</code>, and <code>CHARACTER</code>.
+Types are <code>REAL</code>, <code>INTEGER</code>, <code>DOUBLE</code>, <code>LOGICAL</code>, and <code>CHARACTER</code>.
 
 Define a integer variable and assign a value
 
@@ -516,6 +516,7 @@ Use <code>ANALYSE\map</code> to output a spectra grid
         analyse\map match /grid ! Display spectra grid
         analyse\map match /cell Size_X [Size_Y] ! Customize the cell size
 
+## Example
         file in dcop_10.gbt
         find
         set unit v f
