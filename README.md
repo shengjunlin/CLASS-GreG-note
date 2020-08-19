@@ -11,7 +11,8 @@ GreG: Grenoble Graphic
 5. [Spectrum Plot](#plot) 
 6. [Fitting](#fitting)
 7. [Map](#grid_map)
-8. [References](#ref)
+8. [Other](#other)
+9. [References](#ref)
 
 ## <a name="doc"></a>1. Document ##
 <code>help</code> Show the list of availavle languages and commands.  
@@ -264,10 +265,11 @@ Types are <code>REAL</code>, <code>INTEGER</code>, <code>DOUBLE</code>, <code>LO
 Define a integer variable and assign a value
 
         define integer output_data
-        let output_data 0
+        let [=] output_data 0
 
 ## 3. <a name="flow"></a>Flow Control ##
 
+* Mathematical operator: <code>+</code>, <code>-</code>, <code>\*</code>, <code>/</code>, <code>|</code>(division too), etc.
 * Logical operator: <code>.eq.</code>, <code>.gt.</code>, <code>.le.</code>, etc.
 
         if output_data.eq.1
@@ -510,13 +512,13 @@ to perform the fitting again but by starting from the previous result.
 
 ## 7. <a name="grid_map"></a>Map ##
 
-Use <code>ANALYSE\map</code> to output a spectra grid
+### Spectra Grid
 
         analyse\map where ! Only displays the spectra locations with crosses
         analyse\map match /grid ! Display spectra grid
         analyse\map match /cell Size_X [Size_Y] ! Customize the cell size
 
-### Example
+#### Example
         file in dcop_10.gbt
         find
         set unit v f
@@ -541,6 +543,31 @@ Use <code>ANALYSE\map</code> to output a spectra grid
         $ epstopdf dcop_10_spec.eps  ! PDF file
         $ convert -flatten -density 300 dcop_10_spec.pdf dcop_10_spec.png  ! PNG file
 
+### Moment Maps
+
+        go moment
+
+A window will display to edit parameters and generate a file <code>moments.init</code>
+storing the parameters. If <code>moments.init</code> previously exists, the window will load the parameters.
+This task will produce three files, \*.mean (0th mom), \*.velo (1st mom), and \*.width (2nd mom), in the GILDAS formats.
+
+Another way is to use ANALYSE commands.
+
+        ANALYSE\print area LIST [/output File]
+        ANALYSE\print moment LIST [/output File]
+
+For example, <code>LIST</code> can be -2 15, namely integrated from -2 to 15 km/s which has
+the same format as the FOR-NEXT loop. Each row in the output has (1) the observation number,
+(2,3) the offsets in current angle units. (4) is the areas for the <code>area</code> case and
+(4,5,6) are area, position, width for the <code>moment</code> case. The output file is in the
+ASCII format.
+
+
+## 8. <a name="other"></a>Other ##
+
+<code>sic edit vim</code> to change the default editor from a display window to vim.
+It is useful when the task will show a large window for setting parameter; e.g, <code>run reproject</code>.
+In contrast, <code>run reproject /edit</code> will turn into vim to finish the settings.
 
 
 ## <a name="ref"></a>References ##
