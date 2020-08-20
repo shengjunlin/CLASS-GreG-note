@@ -16,11 +16,21 @@ GreG: Grenoble Graphic
 
 ## <a name="doc"></a>1. Document ##
 <code>help</code> Show the list of availavle languages and commands.  
-<code>help Lang\\</code> Show the list of availavle commands.  
-<code>help [Lang\\]Command [Subtopic]</code> Show the help for this command.  
-<code>help [run] TaskName</code> Show the help for this task.  
-<code>help go ProcName</code> / <code>input ProcName</code> Show the help for this procedure.  
+<code>help LangName\\</code> Show the list of availavle commands.  
+<code>help [LangName\\]CommandName [Subtopic name]</code> Show the help for this command [in the subtopic].  
+To execute the command, <code>[LangName]CommandName</code>.  
+
+<code>help task [Group name]</code> Show the help summary of all available tasks [in the group].  
+<code>help run TaskName</code> Show the help for this task.  
+To execute the task, <code>run TaskName</code>.  
+
+<code>help input</code> Show the help for <code>input</code> and <code>go</code>.  
 <code>input ?</code> Show the list of availavle procedures.  
+<code>input ProcName</code> Show the help for this procedure.  
+To execute the procedure, <code>go ProcName</code>.  
+
+<code>help function</code> Show the list of availavle functions.  
+<code>help function FuncName</code> Show the help for this functions.  
 
 ### Spectical Operator ###
 <code>$ SHELL_Command [-Opts] [Args]</code> Interacting with the shell.  
@@ -435,11 +445,11 @@ Average all found spectra; then plot.
 Draw a vertical line and add a label on the plot and save it as a image file.
 
         plot
-        greg\pen /colour 1 ! red
-        greg\draw r 7.82 0 /user  ! r for relocate, a staring point
-        greg\draw l 7.82 1 /user  ! l for line, the end point for a line
-        greg\draw text 7.71 0.3 "v\d0(DCO\u+ 1-0)=7.82" 5 90 /user
-        greg\pen /colour 0 ! black
+        GREG\pen /colour 1 ! red
+        GREG\draw r 7.82 0 /user  ! r for relocate, a staring point
+        GREG\draw l 7.82 1 /user  ! l for line, the end point for a line
+        GREG\draw text 7.71 0.3 "v\d0(DCO\u+ 1-0)=7.82" 5 90 /user
+        GREG\pen /colour 0 ! black
         hardcopy dcop_10_vlsr_off_+00_+00.png /device png /overwrite
 
 
@@ -479,8 +489,8 @@ Use <code>LAS\swap</code> to undo the baseline extraction.
 
 <code>FIT\method</code> can select a line profile for fitting.
 
-        fit\method gauss  ! Use a gaussian profile
-        fit\method hfs [filename]  ! Use a file for hfs fitting
+        FIT\method gauss  ! Use a gaussian profile
+        FIT\method hfs [filename]  ! Use a file for hfs fitting
 
 The filename storing hfs profile should be (the example is N2H+ 1-0)
 
@@ -514,9 +524,9 @@ to perform the fitting again but by starting from the previous result.
 
 ### Spectra Grid
 
-        analyse\map where ! Only displays the spectra locations with crosses
-        analyse\map match /grid ! Display spectra grid
-        analyse\map match /cell Size_X [Size_Y] ! Customize the cell size
+        ANALYSE\map where ! Only displays the spectra locations with crosses
+        ANALYSE\map match /grid ! Display spectra grid
+        ANALYSE\map match /cell Size_X [Size_Y] ! Customize the cell size
 
 #### Example
         file in dcop_10.gbt
@@ -527,13 +537,13 @@ to perform the fitting again but by starting from the previous result.
         set mode y -0.2 1.3
         clear
         map match /grid /base 1  ! 1 means red
-        pause "type greg\draw and type t to annotate"
+        pause "type GREG\draw and type t to annotate"
         ! draw  ! Type "t" to annotate text
         ! >Text : DCO\u+ (1-0), x:6~10km s\u-\u1, y=-0.2-1.3K
         ! Type "e" to leave when the cursor is on the greg window
 
-        pause "type greg\draw and type b on the plot to find the dimension of a box, x1 x2 y1 y2"
-        greg\set box 20.71 21.76 7.329 8.379  ! x1 x2 y1 y2
+        pause "type GREG\draw and type b on the plot to find the dimension of a box, x1 x2 y1 y2"
+        GREG\set box 20.71 21.76 7.329 8.379  ! x1 x2 y1 y2
         pen /colour 0
         set expand 0.5 ! font size
         set unit v v
@@ -550,6 +560,7 @@ to perform the fitting again but by starting from the previous result.
 A window will display to edit parameters and generate a file <code>moments.init</code>
 storing the parameters. If <code>moments.init</code> previously exists, the window will load the parameters.
 This task will produce three files, \*.mean (0th mom), \*.velo (1st mom), and \*.width (2nd mom), in the GILDAS formats.
+Then use <code>VECTOR\fits</code> to convert the GILDAS formats to FITS formats.
 
 Another way is to use ANALYSE commands.
 
@@ -562,6 +573,28 @@ the same format as the FOR-NEXT loop. Each row in the output has (1) the observa
 (4,5,6) are area, position, width for the <code>moment</code> case. The output file is in the
 ASCII format.
 
+To obtain FITS files, we need to convert the ACSII files to GILDAS first; then convert them to FITS files.
+
+        GREG1\column x 2 y 3 z 4 /file File ! read ra_offset, dec_offset, mom0 from a area file
+        GREG2\rgdata x y z /blanking 0 ! create a regular grid
+        ! Another way is to interpolate to a finer meash or create from a irregular sampling
+        ! GREG2\random_map 100 100 /blanking 0
+
+        GREG1\set system equatorial 1950 ! coordinates
+        ! Define a projection: RA0, Dec0, rotation, proj. type
+        ! Some type options: gnomonic  (makes CTYPE1|2='-----TAN')
+        !                    azimuthal (makes CTYPE1|2='-----ARC')
+        !                    radio     (makes CTYPE1|2='-----GLS')
+        GREG2\projection 4:07:50 25:02:13 0.0 /type gnomonic
+        ! Set the offset unit used by the input File
+        GREG1\set angle_unit second
+
+        ! Save as an image (*gdf)
+        GREG2\write image mom0.gdf
+        ! Save a fits file
+        VECTOR\fits mom0.fits from mom0.gdf
+
+Afterwards, we need to correct the header values for CTYPE1|2 to be 'RA---XXX' and 'DEC---XXX' if they were '-----XXX'.
 
 ## 8. <a name="other"></a>Other ##
 
