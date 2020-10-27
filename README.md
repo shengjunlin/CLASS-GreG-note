@@ -576,9 +576,14 @@ ASCII format.
 To obtain FITS files, we need to convert the ACSII files to GILDAS first; then convert them to FITS files.
 
         GREG1\column x 2 y 3 z 4 /file File ! read ra_offset, dec_offset, mom0 from a area file
-        GREG2\rgdata x y z /blanking 0 ! create a regular grid
+        
+        ! Convert x_offset to be RA_offset
+        define real x_ra /like x
+        let x_ra = -x
+        
+        GREG2\rgdata x_ra y z /blanking 0 ! create a regular grid
         ! Another way is to interpolate to a finer meash or create from a irregular sampling
-        ! GREG2\random_map 100 100 /blanking 0
+        ! GREG2\random_map 100 100 /var x_ra y z /blanking 0
 
         GREG1\set system equatorial 1950 ! coordinates
         ! Define a projection: RA0, Dec0, rotation, proj. type
@@ -594,7 +599,7 @@ To obtain FITS files, we need to convert the ACSII files to GILDAS first; then c
         ! Save a fits file
         VECTOR\fits mom0.fits from mom0.gdf
 
-Afterwards, we need to correct the header values for CTYPE1|2 to be 'RA---XXX' and 'DEC---XXX' if they were '-----XXX'.
+Afterwards, we need to correct the header values for CTYPE1|2 to be 'RA---XXX' and 'DEC--XXX' if they were '-----XXX'.
 
 ## 8. <a name="other"></a>Other ##
 
