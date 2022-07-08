@@ -548,6 +548,10 @@ to perform the fitting again but by starting from the previous result.
         set expand 0.5 ! font size
         set unit v v
         box
+        
+        ! Check the index of segments by "gtvl\display segment"
+        ! Remove the last segment by "clear segment"
+        ! Or remove a specific one by "clear segment 347"
 
         hardcopy dcop_10_spec /device eps /overwrite  ! EPS file
         $ epstopdf dcop_10_spec.eps  ! PDF file
